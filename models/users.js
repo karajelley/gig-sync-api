@@ -17,6 +17,7 @@ const usersSchema = new Schema(
       type: String,
       required: [true, "Name is required."],
     },
+    
   },
   {
     timestamps: true,
