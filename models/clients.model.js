@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const clientSchema = mongoose ({
+const clientsSchema = mongoose ({
     name: {
         type: String,
         required: [true, "Name is required"],
@@ -27,7 +27,7 @@ const clientSchema = mongoose ({
     },
 })
 
-const Client = mongoose.model("Client", clientSchema);
+const Client = mongoose.model("Client", clientsSchema);
 
-module.exports = Client;
+module.exports = Clients;
 
