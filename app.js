@@ -11,9 +11,18 @@ const express = require("express");
 
 const app = express();
 
+// Enable CORS middleware
+const cors = require("cors");
+
+const corsOptions = {
+  origin: "http://localhost:5173", // Replace with your frontend's local URL during development
+  credentials: true, // Allow credentials (cookies, headers, etc.)
+};
+
+app.use(cors(corsOptions));
+
 // ℹ️ This function is getting exported from the config folder. It runs most pieces of middleware
 require("./config")(app);
-
 
 // 👇 Start handling routes here
 
@@ -23,11 +32,10 @@ app.use("/api", indexRoutes);
 
 // Client Routes
 const clientRoutes = require("./routes/clients.routes");
-app.use("/clients", clientRoutes); 
+app.use("/clients", clientRoutes);
 
-// project routes
-
-const projectRoutes = require("./routes/projects.routes"); // Adjust the path if necessary
+// Project Routes
+const projectRoutes = require("./routes/projects.routes");
 app.use("/projects", projectRoutes);
 
 // Authentication Routes

@@ -1,7 +1,7 @@
 const express = require("express");
 const logger = require("morgan");
 const mongoose = require("mongoose");
-const Client = require("../models/clients.model");
+const clients = require("../models/clients.model");
 
 
 const router = express.Router();
@@ -11,7 +11,7 @@ router.post("/", async (req, res) => {
     const { name, email, phone, company, user } = req.body;
 
     try {
-        const newClient = await Client.create({ name, email, phone, company, user });
+        const newClient = await Clients.create({ name, email, phone, company, user });
         res.status(201).json({ message: `The client, "${newClient.name}" has been created successfully!` });
     } catch (error) {
         console.error(error);
@@ -24,7 +24,7 @@ router.get("/", async (req, res) => {
     const userId = req.query.user;
 
     try {
-        const clients = await Client.find({ user: userId });
+        const clients = await Clients.find({ user: userId });
         res.status(200).json(clients);
     } catch (error) {
         console.error(error);
@@ -51,7 +51,7 @@ router.put("/:id", async (req, res) => {
     const { name, email, phone, company } = req.body;
 
     try {
-        const updatedClient = await Client.findByIdAndUpdate(
+        const updatedClient = await Clients.findByIdAndUpdate(
             req.params.id,
             { name, email, phone, company },
             { new: true, runValidators: true }
@@ -69,7 +69,7 @@ router.put("/:id", async (req, res) => {
 // Delete Client
 router.delete("/:id", async (req, res) => {
     try {
-        const deletedClient = await Client.findByIdAndDelete(req.params.id);
+        const deletedClient = await Clients.findByIdAndDelete(req.params.id);
         if (!deletedClient) {
             return res.status(404).json({ message: "Client not found" });
         }
