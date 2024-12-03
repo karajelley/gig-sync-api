@@ -1,7 +1,7 @@
 const express = require("express");
 const logger = require("morgan");
 const mongoose = require("mongoose");
-const clients = require("../models/clients.model");
+const Clients = require("../models/clients.model");
 
 
 const router = express.Router();
@@ -35,7 +35,7 @@ router.get("/", async (req, res) => {
 // Fetch Client by ID
 router.get("/:id", async (req, res) => {
     try {
-        const client = await Client.findById(req.params.id);
+        const client = await Clients.findById(req.params.id);
         if (!client) {
             return res.status(404).json({ message: "Client not found" });
         }
