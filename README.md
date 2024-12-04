@@ -170,7 +170,6 @@ Option to update password or email
 -----------------------------------------------
 MODELS & ROUTES
 
-
 Models
   Projetcs
     Title
@@ -189,22 +188,29 @@ Models
     User
 
 
-Routes
-  Projects
-    POST /api/projects Add a new project
-    GET /api/projects Fetch all projects for the logged-in user
-    GET /api/projects/search Search for a project
-    GET /api/projects/:projectId Fetch a single project
-    PUT /api/projects/:projectId Update a single project
-    DELETE /api/projects/:projectId Delete a single project
+PROJECT ROUTES
 
-  Clients
-    POST /api/clients Add a new client
-    GET /api/clients Fetch all clients for the logged-in user
-    GET /api/clients/search Search for a client
-    GET /api/clients/:clientId Fetch a single client
-    PUT /api/clients/:clientId Update a single client
-    DELETE /api/clients/:clientId Delete a single client
+| Method | Endpoint              | Request                                        | Return Value             | Action                           |
+| ------ | --------------------- | ---------------------------------------------- | ------------------------ | -------------------------------- |
+| POST   | `/api/projects`       | { title, description, budget, status, client } | Project object           | Add new project                  |
+| GET    | `/api/projects`       |                                                | Array of project objects | Fetch all projects for auth user |
+| GET    | `/api/projects/search`|                                                | Array of project objects | Search for a project             |
+| GET    | `/api/projects/:id`   |                                                | Current project object   | Fetch a single project           |
+| PUT    | `/api/projects/:id`   |                                                | Updated project object   | Update a single project          |
+| DELETE | `//api/projects/:id`  |                                                |                          | Delete a single project          |
+
+
+CLIENT ROUTES
+
+| Method | Endpoint              | Request                                        | Return Value             | Action                           |
+| ------ | --------------------- | ---------------------------------------------- | ------------------------ | -------------------------------- |
+| POST   | `/api/clients`        | { name, email, phone, company }                | Client object             | Add new client                  |
+| GET    | `/api/clients`        |                                                | Array of client objects   | Fetch all clients for auth user |
+| GET    | `/api/clients/search` |                                                | Array of client objects   | Search for a client             |
+| GET    | `/api/clients/:id`    |                                                | Current client object     | Fetch a single client           |
+| PUT    | `/api/clients/:id`    |                                                | Updated client object     | Update a single client          |
+| DELETE | `//api/clients/:id`   |                                                |                           | Delete a single client          |
+
 
 
   
