@@ -13,7 +13,7 @@ router.post("/", isAuthenticated, async (req, res) => {
     try {
         const foundClient = await Client.findById(client);
 
-        if (!client) {
+        if (!foundClient) {
             return res.status(400).json({ message: "Client not found" });
         }
 
@@ -22,7 +22,7 @@ router.post("/", isAuthenticated, async (req, res) => {
             description,
             budget,
             status,
-            client,
+            client: foundClient,
             user: req.payload,
         });
         res.status(201).json({ message: `The project titled, ${newProject.title} has been created successfully!`, project: newProject });
