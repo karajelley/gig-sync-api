@@ -1,23 +1,31 @@
 const express = require("express");
 const logger = require("morgan");
 const mongoose = require("mongoose");
-const Projects = require("../models/projects.model");
+const Client = require("../models/clients.model");
+const Project = require("../models/projects.model");
+const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
-    const { title, description, budget, status, client, user } = req.body;
+router.post("/", isAuthenticated, async (req, res) => {
+    const { title, description, budget, status, client } = req.body;
 
     try {
-        const newProject = await Projects.create({
+        const foundClient = await Client.findById(client);
+
+        if (!client) {
+            return res.status(400).json({ message: "Client not found" });
+        }
+
+        const newProject = await Project.create({
             title,
             description,
             budget,
             status,
             client,
-            user,
+            user: req.payload,
         });
-        res.status(201).json({ message: `The project titled, "${newProject.title}" has been created successfully!` });
+        res.status(201).json({ message: `The project titled, ${newProject.title} has been created successfully!`, project: newProject });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error while creating a new project" });
@@ -25,7 +33,7 @@ router.post("/", async (req, res) => {
 });
 
 // Fetch all projects
-router.get("/", async (req, res) => {
+router.get("/", isAuthenticated, async (req, res) => {
     try {
         const projects = await Projects.find();
         res.status(200).json(projects);
@@ -38,19 +46,25 @@ router.get("/", async (req, res) => {
 router.get("/search", async (req, res) => {
     const { title } = req.query;
 
+    if (!title) {
+        const allProjects = await Project.find();
+        return res.status(200).json(allProjects);
+      }
+
     try {
-        const projects = title
-            ? await Projects.find({
-                  title: { $regex: title.trim(), $options: "i" },
-              })
-            : await Projects.find();
-
-        if (!projects || projects.length === 0) {
-            return res.status(404).json({ message: "No projects found" });
+    const project = await Project.find({
+        title: {
+        $regex: title.trim(),
+        $options: "i"
         }
+    });
 
-        res.status(200).json(projects);
-    } catch (error) {
+    if (project.length === 0) {
+        return res.status(404).json({ message: "No projects found." });
+    }
+
+    res.status(200).json(project);
+    }catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
@@ -103,8 +117,8 @@ router.delete("/:projectId", async (req, res) => {
             return res.status(404).json({ message: "Project not found" });
         }
 
-        await Projects.findByIdAndDelete(projectId);
-        res.status(200).json({ message: `The project "${projectToDelete.title}" has been successfully deleted.` });
+        await Project.findByIdAndDelete(projectId);
+        res.status(200).json({ message: `The project ${projectToDelete.title} has been successfully deleted.` });
     } catch (error) {
         res.status(500).json({ message: "Error deleting project" });
     }

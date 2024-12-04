@@ -1,27 +1,34 @@
 const express = require("express");
 const logger = require("morgan");
 const mongoose = require("mongoose");
-const Clients = require("../models/clients.model");
+const Client = require("../models/clients.model");
+const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 
 const router = express.Router();
 
-// Create a New Client
-router.post("/", async (req, res) => {
-    const { name, email, phone, company, user } = req.body;
+router.post("/", isAuthenticated, async (req, res) => {
+    const { name, email, phone, company } = req.body;
 
     try {
-        const newClient = await Clients.create({ name, email, phone, company, user });
-        res.status(201).json({ message: `The client, "${newClient.name}" has been created successfully!` });
+        const newClient = await Client.create({
+            name,
+            email,
+            phone,
+            company,
+            user: req.payload
+        });
+
+        res.status(201).json({ message: `Client ${newClient.name} created successfully!`, client: newClient });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error while creating a new client" });
+        res.status(500).json({ message: "Error while creating client" });
     }
 });
 
 // Fetch All Clients
-router.get("/", async (req, res) => {
-    const userId = req.query.user;
+router.get("/", isAuthenticated, async (req, res) => {
+
+    const userId = req.payload._id;
 
     try {
         const clients = await Clients.find({ user: userId });
@@ -59,7 +66,7 @@ router.put("/:id", async (req, res) => {
         if (!updatedClient) {
             return res.status(404).json({ message: "Client not found" });
         }
-        res.status(200).json({ message: `The client, "${updatedClient.name}" has been updated successfully!` });
+        res.status(200).json({ message: `The client, ${updatedClient.name} has been updated successfully!` });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error while updating client" });
@@ -73,7 +80,7 @@ router.delete("/:id", async (req, res) => {
         if (!deletedClient) {
             return res.status(404).json({ message: "Client not found" });
         }
-        res.status(200).json({ message: `The client, "${deletedClient.name}" has been deleted successfully!` });
+        res.status(200).json({ message: `The client, ${deletedClient.name} has been deleted successfully!` });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error while deleting client" });
