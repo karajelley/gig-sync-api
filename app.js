@@ -19,7 +19,7 @@ const corsOptions = {
   credentials: true, // Allow credentials (cookies, headers, etc.)
 };
 
-app.use(cors(corsOptions));
+app.use(cors()); //need to add in corsOptions in the () change origin in corsOptions to frontend
 
 // ℹ️ This function is getting exported from the config folder. It runs most pieces of middleware
 require("./config")(app);
