@@ -1,6 +1,6 @@
 # Gig Sync API
 
-Gig Sync is a Service Project Management CMS platform designed to help freelancers and gig workers manage their projects and clients. With this tool, you can track project progress, manage client information, and maintain an organized workflow.
+GigSync is a Service Project Management CMS platform designed to help freelancers and gig workers manage their projects and clients. With this tool, you can track project progress, manage client information, and maintain an organized workflow.
 
 ---
 
@@ -66,13 +66,9 @@ Refer to the detailed API documentation for all endpoints and their usage. For e
 The API is deployed on Vercel and can be accessed at:  
 [https://gig-sync-api.vercel.app/api](https://gig-sync-api.vercel.app/api)
 
-## Notes on Dependencies
 
-- When someone clones the repository and runs `npm install`, all required packages (like Axios for making HTTP requests) will be installed automatically.
-- Ensure any package required for the app's c
-
-
-## Usage
+---
+### Usage
 
 AUTH ROUTES
 
@@ -81,6 +77,7 @@ AUTH ROUTES
 | POST   | `/auth/signup`         | { email, password }                            |                          | Create account                   |
 | POST   | `/auth/login`          | { email, password, name }                      | JWT auth token           | Login to account                 |
 | GET    | `/auth/verify`         |                                                | Decoded JWT Token        | User credentials verifie         |
+
 
 
 PROJECT ROUTES
@@ -93,6 +90,7 @@ PROJECT ROUTES
 | GET    | `/projects/:id`        |                                                | Current project object   | Fetch a single project           |
 | PUT    | `/projects/:id`        |                                                | Updated project object   | Update a single project          |
 | DELETE | `/projects/:id`        |                                                |                          | Delete a single project          |
+
 
 
 CLIENT ROUTES
