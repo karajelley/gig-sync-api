@@ -29,9 +29,11 @@ router.post("/", isAuthenticated, async (req, res) => {
 router.get("/", isAuthenticated, async (req, res) => {
 
     const userId = req.payload._id;
+    console.log(req.payload)
+    console.log(req.payload._id)
 
     try {
-        const clients = await Clients.find({ user: userId });
+        const clients = await Client.find({ user: userId });
         res.status(200).json(clients);
     } catch (error) {
         console.error(error);
@@ -42,7 +44,7 @@ router.get("/", isAuthenticated, async (req, res) => {
 // Fetch Client by ID
 router.get("/:id", async (req, res) => {
     try {
-        const client = await Clients.findById(req.params.id);
+        const client = await Client.findById(req.params.id);
         if (!client) {
             return res.status(404).json({ message: "Client not found" });
         }
@@ -58,7 +60,7 @@ router.put("/:id", async (req, res) => {
     const { name, email, phone, company } = req.body;
 
     try {
-        const updatedClient = await Clients.findByIdAndUpdate(
+        const updatedClient = await Client.findByIdAndUpdate(
             req.params.id,
             { name, email, phone, company },
             { new: true, runValidators: true }
@@ -76,7 +78,7 @@ router.put("/:id", async (req, res) => {
 // Delete Client
 router.delete("/:id", async (req, res) => {
     try {
-        const deletedClient = await Clients.findByIdAndDelete(req.params.id);
+        const deletedClient = await Client.findByIdAndDelete(req.params.id);
         if (!deletedClient) {
             return res.status(404).json({ message: "Client not found" });
         }
