@@ -41,8 +41,36 @@ router.get("/", isAuthenticated, async (req, res) => {
     }
 });
 
+// Search clients by name
+router.get("/search", isAuthenticated, async (req, res) => {
+    const { name } = req.query;
+    const userId = req.payload._id;
+
+    if (!name) {
+        const allClients = await Client.find({ user: userId });
+        return res.status(200).json(allClients);
+      }
+
+    try {
+    const client = await Client.find({
+        name: {
+        $regex: name.trim(),
+        $options: "i"
+        }
+    });
+
+    if (client.length === 0) {
+        return res.status(404).json({ message: "No clients found." });
+    }
+
+    res.status(200).json(client);
+    }catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 // Fetch Client by ID
-router.get("/:id", async (req, res) => {
+router.get("/:id", isAuthenticated, async (req, res) => {
     try {
         const client = await Client.findById(req.params.id);
         if (!client) {
@@ -56,7 +84,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // Update Client
-router.put("/:id", async (req, res) => {
+router.put("/:id", isAuthenticated, async (req, res) => {
     const { name, email, phone, company } = req.body;
 
     try {
@@ -76,7 +104,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // Delete Client
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", isAuthenticated, async (req, res) => {
     try {
         const deletedClient = await Client.findByIdAndDelete(req.params.id);
         if (!deletedClient) {

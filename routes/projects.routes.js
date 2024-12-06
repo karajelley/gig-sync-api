@@ -45,11 +45,11 @@ router.get("/", isAuthenticated, async (req, res) => {
 });
 
 // Search projects by title
-router.get("/search", async (req, res) => {
+router.get("/search", isAuthenticated, async (req, res) => {
     const { title } = req.query;
 
     if (!title) {
-        const allProjects = await Project.find();
+        const allProjects = await Project.find({ user: req.payload._id });
         return res.status(200).json(allProjects);
       }
 
