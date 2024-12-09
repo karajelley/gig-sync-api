@@ -8,6 +8,7 @@ const { isAuthenticated } = require("../middleware/jwt.middleware");
 const router = express.Router();
 
 router.post("/", isAuthenticated, async (req, res) => {
+    console.log("Received request body:", req.body); // Log request body
     const { title, description, budget, status, client } = req.body;
 
     try {
