@@ -40,6 +40,8 @@ router.get("/", isAuthenticated, async (req, res) => {
         const projects = await Project.find({ user: req.payload._id });
         res.status(200).json(projects);
     } catch (error) {
+        console.log("Error in api projects", error);
+
         res.status(500).json({ message: "Error while getting all projects" });
     }
 });
