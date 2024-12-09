@@ -21,13 +21,12 @@ router.post("/", isAuthenticated, async (req, res) => {
             title,
             description,
             budget,
-            status,
+            status: status || "To Do",
             client: foundClient,
             user: req.payload,
         });
         res.status(201).json({ message: `The project titled, ${newProject.title} has been created successfully!`, project: newProject });
     } catch (error) {
-        console.error(error);
         res.status(500).json({ message: "Error while creating a new project" });
     }
 });
@@ -35,16 +34,14 @@ router.post("/", isAuthenticated, async (req, res) => {
 // Fetch all projects
 router.get("/", isAuthenticated, async (req, res) => {
     try {
-        console.log(req.payload)
-        console.log(req.payload._id)
-        const projects = await Project.find({ user: req.payload._id });
+        const projects = await Project.find({ user: req.payload._id }).populate("client"); // Populate client details
         res.status(200).json(projects);
     } catch (error) {
         console.log("Error in api projects", error);
-
         res.status(500).json({ message: "Error while getting all projects" });
     }
 });
+
 
 // Search projects by title
 router.get("/search", async (req, res) => {
@@ -78,12 +75,13 @@ router.get("/:id", isAuthenticated, async (req, res) => {
     const { id } = req.params;
 
     try {
-        const project = await Project.findById(id);
+        const project = await Project.findById(id).populate("client"); // Populate client details
         if (!project) {
             return res.status(404).json({ message: "Project not found" });
         }
         res.status(200).json(project);
     } catch (error) {
+        console.error("Error fetching project by ID:", error);
         res.status(500).json({ message: "Error while getting a single project" });
     }
 });
