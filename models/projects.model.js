@@ -18,8 +18,8 @@ const projectsSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["In Progress", "Completed", "On Hold"], 
-            default: "In Progress",
+            enum: ["To Do", "in Progress", "Completed",], 
+            default: "To Do",
         },
         client: {
             type: mongoose.Schema.Types.ObjectId,
@@ -31,6 +31,7 @@ const projectsSchema = new mongoose.Schema(
             ref: "User", 
             required: true,
         },
+
     },
     {
         timestamps: true, 

@@ -17,8 +17,8 @@ const clientsSchema = new mongoose.Schema({
         required: true,
     },
     company: {
-        type: String,
-    },
+        type: String,        
+    }, 
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
