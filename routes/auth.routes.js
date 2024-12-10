@@ -128,4 +128,58 @@ router.get("/verify", isAuthenticated, (req, res, next) => {
   res.status(200).json(req.payload);
 });
 
+// PUT  /auth/users/:userId - Used to update the user account information
+router.put('/users/:userId', isAuthenticated, (req, res) => {
+  const { userId } = req.params;
+  const { name, email, image } = req.body;
+
+  // Check if the new email already exists in the database, but exclude the current user
+  User.findOne({ _id: { $ne: userId }, email })
+    .then((existingUser) => {
+      if (existingUser) {
+        return res.status(400).json({ message: 'Email already exists.' });
+      }
+
+      // Proceed with updating the user information
+      User.findByIdAndUpdate(userId, { name, email, image }, { new: true, runValidators: true })
+        .then((updatedUser) => {
+          // Create a new payload for the new token
+          const payload = { _id: updatedUser._id, email: updatedUser.email, image: updatedUser.image, name: updatedUser.name}; 
+
+          // Create a new token
+          const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
+            algorithm: "HS256",
+            expiresIn: "6h",
+          });
+
+          // Send the updated user info and the new token in the response
+          res.status(200).json({
+            updatedUser,    // Send back the updated user
+            authToken       // Send the new token
+          });
+        })
+        .catch((error) => res.status(500).json({ message: 'Failed to update user.', error: error.message }));
+    })
+    .catch((error) => res.status(500).json({ message: 'Error checking for existing email.', error: error.message }));
+});
+
+// DELETE  /auth/:id -  Used to delete the user account
+router.delete("/:id", isAuthenticated, (req, res) => {
+  if (req.user.id !== req.params.id) {
+      return res.status(403).json({ message: "You can only delete your own account." });
+  }
+
+  User.findByIdAndDelete(req.params.id)
+      .then((user) => {
+          if (!user) {
+              return res.status(404).json({ message: "User not found." });
+          }
+          res.status(200).json({ message: "User deleted successfully." });
+      })
+      .catch((error) => {
+          console.error(error);
+          res.status(500).json({ message: "An error occurred while deleting the account." });
+      });
+});
+
 module.exports = router;
