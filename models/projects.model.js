@@ -24,7 +24,7 @@ const projectsSchema = new mongoose.Schema(
         client: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Client", 
-            required: true,
+            required: false,
         },
         user: {
             type: mongoose.Schema.Types.ObjectId,

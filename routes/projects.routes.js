@@ -12,25 +12,52 @@ router.post("/", isAuthenticated, async (req, res) => {
     const { title, description, budget, status, client } = req.body;
 
     try {
-        const foundClient = await Client.findById(client);
+        let foundClient = null;
 
-        if (!foundClient) {
-            return res.status(400).json({ message: "Client not found" });
+        if (client) {
+            foundClient = await Client.findById(client);
+            if (!foundClient) {
+                return res.status(400).json({ message: "Client not found" });
+            }
         }
 
+        // this is checking if a project with the same title already exists (optional)
+        const existingProject = await Project.findOne({ title });
+        if (existingProject) {
+            return res.status(400).json({ message: "A project with this title already exists." });
+        }
+
+        // Create new project
         const newProject = await Project.create({
             title,
             description,
             budget,
             status: status || "To Do",
-            client: foundClient,
+            client: foundClient ? foundClient._id : null,
             user: req.payload,
         });
-        res.status(201).json({ message: `The project titled, ${newProject.title} has been created successfully!`, project: newProject });
+
+        // Link project to client if client exists
+        if (foundClient) {
+            if (!foundClient.project.includes(newProject._id)) {
+                foundClient.project.push(newProject._id);
+                await foundClient.save();
+                console.log(`Project ${newProject._id} linked to client ${foundClient._id}`);
+            }
+        } else {
+            console.log("Project created without a linked client:", newProject);
+        }
+
+        res.status(201).json({
+            message: `The project titled, ${newProject.title} has been created successfully!`,
+            project: newProject,
+        });
     } catch (error) {
+        console.error("Error while creating a project:", error);
         res.status(500).json({ message: "Error while creating a new project" });
     }
 });
+
 
 // Fetch all projects
 router.get("/", isAuthenticated, async (req, res) => {
@@ -93,19 +120,45 @@ router.put("/:id", isAuthenticated, async (req, res) => {
     const { title, description, budget, status, client, user } = req.body;
 
     try {
-        const updatedProject = await Project.findByIdAndUpdate(
-            id,
-            { title, description, budget, status, client, user },
-            { new: true }
-        );
-
-        if (!updatedProject) {
+        const existingProject = await Project.findById(id);
+        if (!existingProject) {
             return res.status(404).json({ message: "Project not found" });
         }
 
+        const isClientChanged = client && client !== existingProject.client?.toString();
+
+        if (isClientChanged) {
+            if (existingProject.client) {
+                await Client.findByIdAndUpdate(existingProject.client, {
+                    $pull: { project: id },
+                });
+                console.log(`Project ${id} removed from old client ${existingProject.client}`);
+            }
+
+            if (client) {
+                await Client.findByIdAndUpdate(client, {
+                    $addToSet: { project: id }, // Prevent duplicate entries
+                });
+                console.log(`Project ${id} linked to new client ${client}`);
+            }
+        }
+
+        // Update the project
+        const updatedProject = await Project.findByIdAndUpdate(
+            id,
+            { title, description, budget, status, client, user },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedProject) {
+            return res.status(404).json({ message: "Project not found after update" });
+        }
+
+        console.log(`Project ${id} updated successfully`);
         res.status(200).json(updatedProject);
     } catch (error) {
-        res.status(500).json({ message: `Unable to update project` });
+        console.error("Error while updating project:", error);
+        res.status(500).json({ message: "Unable to update project" });
     }
 });
 
