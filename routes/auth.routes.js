@@ -163,23 +163,23 @@ router.put('/users/:userId', isAuthenticated, (req, res) => {
     .catch((error) => res.status(500).json({ message: 'Error checking for existing email.', error: error.message }));
 });
 
-// DELETE  /auth/:id -  Used to delete the user account
-router.delete("/:id", isAuthenticated, (req, res) => {
-  if (req.user.id !== req.params.id) {
-      return res.status(403).json({ message: "You can only delete your own account." });
+// DELETE  /auth/delete -  Used to delete the user account
+router.delete("/delete", isAuthenticated, (req, res) => {
+  if (!req.payload || !req.payload._id) {
+    return res.status(401).json({ message: "Unauthorized. User not authenticated." });
   }
 
-  User.findByIdAndDelete(req.params.id)
-      .then((user) => {
-          if (!user) {
-              return res.status(404).json({ message: "User not found." });
-          }
-          res.status(200).json({ message: "User deleted successfully." });
-      })
-      .catch((error) => {
-          console.error(error);
-          res.status(500).json({ message: "An error occurred while deleting the account." });
-      });
+  User.findByIdAndDelete(req.payload._id)
+    .then((user) => {
+      if (!user) {
+        return res.status(404).json({ message: "User not found." });
+      }
+      res.status(200).json({ message: "User deleted successfully." });
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).json({ message: "An error occurred while deleting the account." });
+    });
 });
 
 module.exports = router;
