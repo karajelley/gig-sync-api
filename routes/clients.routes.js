@@ -33,7 +33,7 @@ router.get("/", isAuthenticated, async (req, res) => {
     console.log(req.payload._id)
 
     try {
-        const clients = await Client.find({ user: userId });
+        const clients = await Client.find({ user: userId }).populate("project").exec();
         res.status(200).json(clients);
     } catch (error) {
         console.error(error);
@@ -72,7 +72,7 @@ router.get("/search", isAuthenticated, async (req, res) => {
 // Fetch Client by ID
 router.get("/:id", isAuthenticated, async (req, res) => {
     try {
-        const client = await Client.findById(req.params.id);
+        const client = await Client.findById(req.params.id).populate("project").exec();
         if (!client) {
             return res.status(404).json({ message: "Client not found" });
         }
@@ -85,12 +85,12 @@ router.get("/:id", isAuthenticated, async (req, res) => {
 
 // Update Client
 router.put("/:id", isAuthenticated, async (req, res) => {
-    const { name, email, phone, company } = req.body;
+    const { name, email, phone, company, project } = req.body;
 
     try {
         const updatedClient = await Client.findByIdAndUpdate(
             req.params.id,
-            { name, email, phone, company },
+            { name, email, phone, company, project },
             { new: true, runValidators: true }
         );
         if (!updatedClient) {

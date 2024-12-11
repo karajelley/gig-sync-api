@@ -24,6 +24,12 @@ const clientsSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
+    project: [
+        {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Project",
+        }
+    ]
 });
 
 const Client = mongoose.model("Client", clientsSchema);
