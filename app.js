@@ -24,7 +24,6 @@ app.use(cors()); //need to add in corsOptions in the () change origin in corsOpt
 // ℹ️ This function is getting exported from the config folder. It runs most pieces of middleware
 require("./config")(app);
 
-// 👇 Start handling routes here
 
 // Index Routes (General routes for the app)
 const indexRoutes = require("./routes/index.routes");
@@ -37,6 +36,14 @@ app.use("/api/clients", clientRoutes);
 // Project Routes
 const projectRoutes = require("./routes/projects.routes");
 app.use("/api/projects", projectRoutes);
+
+// Expense routes
+const expenseRoutes = require("./routes/expense.routes");
+app.use("/api/expenses", expenseRoutes);
+
+// dashboard route
+const dashboardRoutes = require("./routes/dashboard.routes");
+app.use("/api/dashboard", dashboardRoutes);
 
 // Authentication Routes
 const authRoutes = require("./routes/auth.routes");

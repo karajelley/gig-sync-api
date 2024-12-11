@@ -37,7 +37,6 @@ router.post("/", isAuthenticated, async (req, res) => {
             user: req.payload,
         });
 
-        // Link project to client if client exists
         if (foundClient) {
             if (!foundClient.project.includes(newProject._id)) {
                 foundClient.project.push(newProject._id);
@@ -100,19 +99,26 @@ router.get("/search", isAuthenticated, async (req, res) => {
 
 // Fetch single project by ID
 router.get("/:id", isAuthenticated, async (req, res) => {
-    const { id } = req.params;
-
     try {
-        const project = await Project.findById(id).populate("client"); // Populate client details
+        const project = await Project.findById(req.params.id)
+            .populate("client", "name email") // Populate client info
+            .populate({
+                path: "expenses",
+                select: "description amount category", 
+            })
+            .exec();
+
         if (!project) {
             return res.status(404).json({ message: "Project not found" });
         }
+
         res.status(200).json(project);
     } catch (error) {
-        console.error("Error fetching project by ID:", error);
-        res.status(500).json({ message: "Error while getting a single project" });
+        console.error(error);
+        res.status(500).json({ message: "Error fetching project details" });
     }
 });
+
 
 // Update single project
 router.put("/:id", isAuthenticated, async (req, res) => {

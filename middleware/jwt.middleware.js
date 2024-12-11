@@ -1,9 +1,9 @@
 const { expressjwt: jwt } = require("express-jwt");
 
 const isAuthenticated = jwt({
-  secret: process.env.TOKEN_SECRET, // Ensure this matches the secret used to sign the token
+  secret: process.env.TOKEN_SECRET, 
   algorithms: ["HS256"], // HS256 is default; use this unless your JWTs were signed with another algorithm
-  requestProperty: "payload", // Decoded token will be accessible via req.payload
+  requestProperty: "payload", 
   getToken: getTokenFromHeaders,
 });
 
