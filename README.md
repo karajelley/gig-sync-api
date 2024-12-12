@@ -47,7 +47,7 @@ GigSync is a Service Project Management CMS platform designed to help freelancer
 
 4. **Run the application locally**:
    ```bash
-   npm run dev
+   nodemon
 
 5. **Access the deployed API at:**:
 - Base URL: `https://gig-sync-api.vercel.app/api`
