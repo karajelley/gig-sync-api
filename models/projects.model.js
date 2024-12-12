@@ -31,6 +31,16 @@ const projectsSchema = new mongoose.Schema(
             ref: "User", 
             required: true,
         },
+        expenses: [
+            {
+                description: String,
+                amount: Number,
+                category: {
+                    type: String,
+                    enum: ["Travel", "Food", "Leisure", "Transport", "Miscellaneous"],
+                }
+            }
+        ]
 
     },
     {

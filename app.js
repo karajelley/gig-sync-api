@@ -38,6 +38,9 @@ app.use("/api/clients", clientRoutes);
 const projectRoutes = require("./routes/projects.routes");
 app.use("/api/projects", projectRoutes);
 
+const dashboardRoutes = require("./routes/dashboard.routes");
+app.use("/api/dashboard", dashboardRoutes);
+
 // Authentication Routes
 const authRoutes = require("./routes/auth.routes");
 app.use("/api/auth", authRoutes); // Base URL for authentication-related routes

@@ -37,7 +37,6 @@ router.post("/", isAuthenticated, async (req, res) => {
             user: req.payload,
         });
 
-        // Link project to client if client exists
         if (foundClient) {
             if (!foundClient.project.includes(newProject._id)) {
                 foundClient.project.push(newProject._id);
@@ -100,24 +99,31 @@ router.get("/search", isAuthenticated, async (req, res) => {
 
 // Fetch single project by ID
 router.get("/:id", isAuthenticated, async (req, res) => {
-    const { id } = req.params;
-
     try {
-        const project = await Project.findById(id).populate("client"); // Populate client details
+        const project = await Project.findById(req.params.id)
+            .populate("client", "name email") // Populate client info
+            .populate({
+                path: "expenses",
+                select: "description amount category", 
+            })
+            .exec();
+
         if (!project) {
             return res.status(404).json({ message: "Project not found" });
         }
+
         res.status(200).json(project);
     } catch (error) {
-        console.error("Error fetching project by ID:", error);
-        res.status(500).json({ message: "Error while getting a single project" });
+        console.error(error);
+        res.status(500).json({ message: "Error fetching project details" });
     }
 });
+
 
 // Update single project
 router.put("/:id", isAuthenticated, async (req, res) => {
     const { id } = req.params;
-    const { title, description, budget, status, client, user } = req.body;
+    const { title, description, budget, status, client, user, expenses  } = req.body;
 
     try {
         const existingProject = await Project.findById(id);
@@ -146,7 +152,7 @@ router.put("/:id", isAuthenticated, async (req, res) => {
         // Update the project
         const updatedProject = await Project.findByIdAndUpdate(
             id,
-            { title, description, budget, status, client, user },
+            { title, description, budget, status, client, user, $set: { expenses }, },
             { new: true, runValidators: true }
         );
 
@@ -177,6 +183,75 @@ router.delete("/:id", isAuthenticated, async (req, res) => {
         res.status(200).json({ message: `The project ${projectToDelete.title} has been successfully deleted.` });
     } catch (error) {
         res.status(500).json({ message: "Error deleting project" });
+    } 
+});
+
+router.post("/:id/expenses", isAuthenticated, async (req, res) => {
+    const { id } = req.params;
+    const { description, amount, category } = req.body;
+
+    try {
+        const project = await Project.findById(id);
+        if (!project) {
+            return res.status(404).json({ message: "Project not found" });
+        }
+
+        const newExpense = { description, amount, category };
+        project.expenses.push(newExpense);
+        await project.save();
+
+        res.status(201).json({ message: "Expense added successfully", project });
+    } catch (error) {
+        console.error("Error adding expense:", error);
+        res.status(500).json({ message: "Error adding expense" });
+    }
+});
+
+// Edit Expense in a Project
+router.put("/:id/expenses/:expenseId", isAuthenticated, async (req, res) => {
+    const { id, expenseId } = req.params;
+    const { description, amount, category } = req.body;
+
+    try {
+        const project = await Project.findById(id);
+        if (!project) {
+            return res.status(404).json({ message: "Project not found" });
+        }
+
+        const expense = project.expenses.id(expenseId);
+        if (!expense) {
+            return res.status(404).json({ message: "Expense not found" });
+        }
+
+        expense.description = description || expense.description;
+        expense.amount = amount || expense.amount;
+        expense.category = category || expense.category;
+
+        await project.save();
+        res.status(200).json({ message: "Expense updated successfully", project });
+    } catch (error) {
+        console.error("Error updating expense:", error);
+        res.status(500).json({ message: "Error updating expense" });
+    }
+});
+
+// Delete Expense from a Project
+router.delete("/:id/expenses/:expenseId", isAuthenticated, async (req, res) => {
+    const { id, expenseId } = req.params;
+
+    try {
+        const project = await Project.findById(id);
+        if (!project) {
+            return res.status(404).json({ message: "Project not found" });
+        }
+
+        project.expenses = project.expenses.filter((exp) => exp._id.toString() !== expenseId);
+        await project.save();
+
+        res.status(200).json({ message: "Expense deleted successfully", project });
+    } catch (error) {
+        console.error("Error deleting expense:", error);
+        res.status(500).json({ message: "Error deleting expense" });
     }
 });
 
