@@ -2,13 +2,11 @@
 const express = require("express");
 const router = express.Router();
 
-const Image = require("../models/image.model");
-
 const fileUploader = require("../config/cloudinary.config");
 
-// POST "/api/upload" => Route that receives the image, sends it to Cloudinary via the fileUploader and returns the image URL
+// POST "/api/image/upload" => Route that receives the image, sends it to Cloudinary via the fileUploader and returns the image URL
 router.post("/upload", fileUploader.single("imageUrl"), (req, res, next) => {
-    // console.log("file is: ", req.file)
+     console.log("file is: ", req.file)
    
     if (!req.file) {
       next(new Error("No file uploaded!"));
